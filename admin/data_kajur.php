@@ -1,0 +1,425 @@
+<?php
+  include "../koneksi/config.php";
+
+  include "c_kajur/c_tambahkajur.php";
+  include "c_kajur/c_editkajur.php";
+
+  session_start();
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SIAKAD PNC</title>
+
+    <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="../AdminLTE/plugins/fontawesome-free/css/all.min.css">
+  <link rel="stylesheet" href="../tampilan/tampilan.css">
+  <!-- DataTables -->
+  <link rel="stylesheet" href="../AdminLTE/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+  <link rel="stylesheet" href="../AdminLTE/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+  <link rel="stylesheet" href="../AdminLTE/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+  <link rel="stylesheet" href="../css/a.css">
+  <!-- Select2 -->
+  <link rel="stylesheet" href="../AdminLTE/plugins/select2/css/select2.min.css">
+  <link rel="stylesheet" href="../AdminLTE/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="../AdminLTE/dist/css/adminlte.min.css">
+  <link href="https://code.jquery.com/ui/1.11.2/themes/black-tie/jquery-ui.css" rel="stylesheet"/>
+</head>
+
+<body class="hold-transition sidebar-mini">
+<div class="wrapper">
+
+  <?php
+      include "header_admin.php";
+      include "sidebar_admin.php";
+      
+      $user = mysqli_query($koneksi, "SELECT * FROM tb_kajur INNER JOIN tb_pegawai ON tb_kajur.id_pegawai = tb_pegawai.id_pegawai INNER JOIN tb_jurusan ON tb_jurusan.id_jurusan=tb_kajur.id_jurusan ");
+  ?>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+      <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>Data Ketua Jurusan</h1>
+          </div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="#">Home</a></li>
+              <li class="breadcrumb-item active">Data Jurusan</li>
+            </ol>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+      <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+             
+		        <!-- <h3  class="card-title">Data Ketua Jurusan ( <?php echo ($j>0)?$j:0; ?> )</h3> -->
+            <a data-toggle ="modal" data-target ="#modal-tambah" class = "btn btn-default" style ="width : 12%"><i class="fas fa-plus-circle"></i>  Tambah Data</a> 
+              </div> 
+              <!-- /.card-header -->
+              <div class="card-body">
+                <!-- <a data-toggle ="modal" data-target ="#modal-tambah" class = "btn btn-success mb-2" ><i class="fas fa-plus-circle"></i>  Tambah Data</a> <br> -->
+                  <table id="example" class="table table-bordered table-striped">
+                    <thead>
+                      <tr>
+                          <th><center>No</center></th>
+                          <th><center>Jurusan</center></th>
+                          <th><center>NIP/NPAK, NIDN</center></th>
+                          <th><center>Nama Pegawai</center></th>
+                          <th><center>Status</center></th>
+                          <th><center>Aksi</center></th>
+                      </tr>
+                    </thead>
+                  
+                    <tbody>
+                      <?php $i = 1; ?>
+                          <?php foreach ($user as $row) : ?>
+                          <tr>
+                            <td><center><?= $i ?></center></td>
+                            <td><?php echo $row['nama_jurusan']; ?></td>
+                            <td><?php echo $row['nip_npak']; ?></td>
+                            <td><?php echo $row['nama_pegawai']; ?></td>
+                            <td><?php echo $row['status'] ==1 ? 'Aktif':'Tidak Aktif'; ?></td>
+                            <td><center>
+                                <a data-toggle ="modal" data-target="#modaldetail<?php echo $row["id_jurusan"]; ?>" class = "btn btn-default" title="Detail"><i class="far fa-eye"></i></a> 
+                                <a data-toggle ="modal" data-target="#myModal<?php echo $row['id_jurusan']; ?>" class = "btn btn-default" title="Edit"><i class="nav-icon fas fa-edit"></i> </a>
+                                <a href="c_kajur/c_hapuskajur.php?id_kajur=<?= $row["id_kajur"]; ?>" class = "btn btn-default" title="Hapus"><i class="fas fa-trash-alt"></i> </a>
+                            </td></center>
+                          </tr>
+                          
+                            <?php $i++ ; ?>
+  
+                      <?php endforeach; ?>
+                    </tbody>
+                  </table>
+              </div>
+            <!-- /.card-body -->
+            </div>
+          <!-- /.card -->
+          </div>
+        <!-- /.col -->
+        </div>
+      <!-- /.row -->
+      </div>
+    <!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+    </div>
+    <!-- /.content-wrapper -->
+
+  <!-- /.Modals Tambah --> 
+  <div class="modal fade" id="modal-tambah">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Tambah Data Ketua Jurusan</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <form method ="post" action ="data_kajur.php">
+          <div class="modal-body">
+
+            <div class="form-group">
+              <label for="exampleSelectRounded0">Nama Pegawai</label>
+              <select type="text" class="form-control select2bs4" aria-describedby="emailHelp" name="id_pegawai" id="id_pegawai" required>
+                <option> Silahkan Pilih</option>
+                  <?php $tb_pegawai = mysqli_query($koneksi, "SELECT * FROM tb_pegawai");
+                    foreach ($tb_pegawai as $dtg) : 
+                  ?>
+                    <option value="<?php echo $dtg['id_pegawai'] ?>" nama_pegawai="<?php echo $dtg['nama_pegawai'] ?>"><?php echo $dtg['nama_pegawai'] ?></option>
+                  <?php endforeach; ?>
+              </select>
+            </div>
+
+            <div class="form-group">
+                <label for="id_prodi">Nama Jurusan</label>
+                <select class = "custom-select rounded-0" id ="id_jurusan" name ="id_jurusan" required>
+                    <?php 
+                        $result= mysqli_query($koneksi, "SELECT * FROM tb_jurusan");                
+                        while ($prodi= mysqli_fetch_array($result)) {
+                    ?>
+                    <option value = "<?=$prodi['id_jurusan']?>" ><?= $prodi['nama_jurusan'] ?></option>
+                    <?php }?>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="status ">Status</label>
+                <select class="custom-select" id="status" name="status" required>
+                  <option value="" selected>Pilih Status</option>
+                  <option value="1">Aktif</option>
+                  <option value="0">Tidak Aktif</option>
+                </select>
+            </div>
+
+            <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary" name = "tambah">Save changes</button>
+            </div>
+          </div>
+        </form>
+
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+  <!-- /.modal -->
+
+<!-- / modal edit  -->
+<?php $no = 0;
+$prodi = mysqli_query($koneksi, "SELECT * FROM tb_prodi");
+foreach ($user as $row) : $no++; ?>
+  <div class="modal fade" id="myModal<?php echo $row['id_jurusan']; ?>" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Edit Data Ketua Jurusan</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <form role="form" action="" method="post">
+            <div class="modal-body">
+                  <div class="form-group" hidden>
+                    <input name = "id_kajur" type="text" class="form-control" value="<?php echo $row['id_kajur']; ?>" readonly/>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="id_prodi">Nama Pegawai</label>
+                    <select type="text" class="form-control select2bs4"  name="id_pegawai" id="id_pegawai<?=$no?>" require>
+                      <option value=""> Pilih Pegawai</option>
+                        <?php 
+                          $result= mysqli_query($koneksi, "SELECT * FROM tb_pegawai");                
+                          while ($pgw= mysqli_fetch_array($result)) {
+                        ?>
+                          <option value="<?php echo $pgw['id_pegawai'] ?>" <?= $row['id_pegawai']==$pgw['id_pegawai'] ? 'selected' : '' ?> ><?php echo $pgw['nama_pegawai'] ?></option>
+                        <?php } ?>
+                    </select>
+                  </div> 
+                  
+                  <div class="form-group">
+                      <label for="id_jurusan">Nama Jurusan</label>
+                      <select class = "custom-select rounded-0" id ="id_jurusan" name ="id_jurusan" required>
+                          <?php 
+                              $result2= mysqli_query($koneksi, "SELECT * FROM tb_jurusan");                
+                              while ($jrs= mysqli_fetch_array($result2)) {
+                          ?>
+                          <option value = "<?=$jrs['id_jurusan']?>" <?=$jrs['id_jurusan']==$row['id_jurusan']? 'selected':''?>><?= $jrs['nama_jurusan'] ?></option>
+                          <?php }?>
+                      </select>
+                  </div>
+                  <div class="form-group">
+                      <label for="status ">Status</label>
+                      <select class="custom-select" id="status" name="status" required>
+                        <option value="" selected>Pilih Status</option>
+                        <option value="1" <?=1==$row['status']? 'selected':''?>>Aktif</option>
+                        <option value="0" <?=0==$row['status']? 'selected':''?>>Tidak Aktif</option>
+                      </select>
+                  </div>
+
+                </div>
+                <div class="modal-footer justify-content-between">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  <button type="edit" id ="edit" class="btn btn-primary" name = "edit">Save changes</button>
+                </div>
+              </form>
+            </div>
+            <!-- /.modal-content -->
+          </div>
+          <!-- /.modal-dialog -->
+        </div>
+        <!-- /.modal -->
+                </div>
+        <?php endforeach ?>
+
+      <!-- Modal Lihat Detail -->
+      <?php $no = 0;
+      foreach ($user as $row) : $no++; ?>
+<div class="modal fade" id="modaldetail<?php echo $row['id_jurusan']; ?>">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Biodata Ketua Jurusan</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+             
+                          <div class="row container">
+                            <div class="col-12">
+                                <ul class="list-group">
+                                <!-- <li class="list-group-item"><span class="float-left">Id Jurusan</span><span class="float-right"><b><?= $row['id_jurusan']; ?></b></span></li> -->
+                                    <li class="list-group-item"><span class="float-left">NIP/NPAK,NIDN</span><span class="float-right"><b><?= $row['nip_npak']; ?></b></span></li>
+                                    <li class="list-group-item"><span class="float-left">Nama Pegawai</span><span class="float-right"><b><?= $row['nama_pegawai']; ?></b></span></li>
+                                    <li class="list-group-item"><span class="float-left">Username</span><span class="float-right"><b><?= $row['username']; ?></b></span></li>
+                                    <li class="list-group-item"><span class="float-left">Password</span><span class="float-right"><b><?= $row['password']; ?></b></span></li>
+                                    <li class="list-group-item"><span class="float-left">Nama Jurusan</span><span class="float-right"><b><?= $row['nama_jurusan']; ?></b></span></li>
+                                  </ul>
+                </div>
+                          </div>
+              
+             
+
+            </div>
+            <div class="modal-footer justify-content-between">
+                <a href="index.php" type="submit" class="btn btn-secondary" data-dismiss="modal">Close</a>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+<?php endforeach ?>
+
+
+  <?php include "../AdminLTE/footer.php" ?>
+
+
+<!-- jQuery -->
+<script src="../AdminLTE/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="../AdminLTE/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- DataTables  & Plugins -->
+<script src="../AdminLTE/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="../AdminLTE/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="../AdminLTE/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="../AdminLTE/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="../AdminLTE/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="../AdminLTE/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="../AdminLTE/plugins/jszip/jszip.min.js"></script>
+<script src="../AdminLTE/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="../AdminLTE/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="../AdminLTE/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="../AdminLTE/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="../AdminLTE/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<!-- AdminLTE App -->
+<script src="../AdminLTE/dist/js/adminlte.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="../AdminLTE/dist/js/demo.js"></script>
+
+<!-- jQuery UI 1.11.4 -->
+<script src="../AdminLTE/plugins/jquery-ui/jquery-ui.min.js"></script>
+<!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+<script>
+  $.widget.bridge('uibutton', $.ui.button)
+</script>
+<!-- Bootstrap 4 -->
+<script src="../AdminLTE/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- ChartJS -->
+<script src="../AdminLTE/plugins/chart.js/Chart.min.js"></script>
+<!-- Sparkline -->
+<script src="../AdminLTE/plugins/sparklines/sparkline.js"></script>
+
+<!-- Select2 -->
+<script src="../AdminLTE/plugins/select2/js/select2.full.min.js"></script>
+<!-- JQVMap -->
+<script src="../AdminLTE/plugins/jqvmap/jquery.vmap.min.js"></script>
+<script src="../AdminLTE/plugins/jqvmap/maps/jquery.vmap.usa.js"></script>
+<!-- jQuery Knob Chart -->
+<script src="../AdminLTE/plugins/jquery-knob/jquery.knob.min.js"></script>
+<!-- daterangepicker -->
+<script src="../AdminLTE/plugins/moment/moment.min.js"></script>
+<script src="../AdminLTE/plugins/daterangepicker/daterangepicker.js"></script>
+<!-- Tempusdominus Bootstrap 4 -->
+<script src="../AdminLTE/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+<!-- Summernote -->
+<script src="../AdminLTE/plugins/summernote/summernote-bs4.min.js"></script>
+<!-- overlayScrollbars -->
+<script src="../AdminLTE/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+<!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+<script src="../AdminLTE/dist/js/pages/dashboard.js"></script>
+
+
+<!-- Page specific script -->
+<script>
+  $(function () {
+    $("#example1").DataTable({
+      "responsive": true, "lengthChange": false, "autoWidth": false,
+      "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+    }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+    $('#example2').DataTable({
+      "paging": true,
+      "lengthChange": false,
+      "searching": false,
+      "ordering": true,
+      "info": true,
+      "autoWidth": false,
+      "responsive": true,
+    });
+    $('.select2bs4').select2({
+      theme: 'bootstrap4'
+    })
+  });
+</script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+    $('#example').DataTable();
+} );
+</script>
+
+<script type="text/javascript">
+  $(document).ready(function(){
+    $("#nip_npak").on("change", function(){
+      var nama_pegawai = $("#nip_npak option:selected").attr("nama_pegawai");
+      $("#nama_pegawai").val(nama_pegawai);
+    });
+
+  });
+</script>
+<script>
+  function myFunction() {
+  var x = document.getElementById("myPassword");
+  if (x.type === "password") {
+    x.type = "text";
+  } else {
+    x.type = "password";
+  }
+}
+</script>
+
+<script>
+$(document).Detail();
+
+// prevent mouse event, handle focus events only
+$('input').on('mouseover mouseleave', function(e) { e.stopPropagation(); });
+</script>
+
+<script>
+$(document).Edit();
+
+// prevent mouse event, handle focus events only
+$('input').on('mouseover mouseleave', function(e) { e.stopPropagation(); });
+</script>
+
+<script>
+$(document).Hapus();
+
+// prevent mouse event, handle focus events only
+$('input').on('mouseover mouseleave', function(e) { e.stopPropagation(); });
+</script>
+
+</body>
+</html>
